@@ -137,35 +137,57 @@ func (p *Permutator) String() string {
 	return out
 }
 
+func (p *Permutator) ProcessCommand(cmd string) {
+	switch {
+	case strings.Contains(cmd, "s"):
+		v, _ := strconv.Atoi(cmd[1:])
+		p.Offset(v)
+	case strings.Contains(cmd, "x"):
+		v := strings.Split(cmd[1:], "/")
+		a, _ := strconv.Atoi(v[0])
+		b, _ := strconv.Atoi(v[1])
+		p.SwapByID(a, b)
+	case strings.Contains(cmd, "p"):
+		v := strings.Split(cmd[1:], "/")
+		a, _ := utf8.DecodeRuneInString(v[0])
+		b, _ := utf8.DecodeRuneInString(v[1])
+		p.SwapByValue(byte(a), byte(b))
+	}
+}
+
 func task16PartOne(instructions []string) string {
 	//p := NewPermutator("abcde") // Test input
 	p := NewPermutator("abcdefghijklmnop")
-	for _, command := range instructions {
-		fmt.Println(p.String())
-		fmt.Println(command)
-
-		switch {
-		case strings.Contains(command, "s"):
-			v, _ := strconv.Atoi(command[1:])
-			p.Offset(v)
-		case strings.Contains(command, "x"):
-			v := strings.Split(command[1:], "/")
-			a, _ := strconv.Atoi(v[0])
-			b, _ := strconv.Atoi(v[1])
-			p.SwapByID(a, b)
-		case strings.Contains(command, "p"):
-			v := strings.Split(command[1:], "/")
-			a, _ := utf8.DecodeRuneInString(v[0])
-			b, _ := utf8.DecodeRuneInString(v[1])
-			p.SwapByValue(byte(a), byte(b))
-		}
+	for _, cmd := range instructions {
+		p.ProcessCommand(cmd)
 	}
-
 	result := p.String()
 	return result
 }
 
 func task16PartTwo(instructions []string) string {
-	result := ""
+	p := NewPermutator("abcdefghijklmnop")
+	//find repetition
+
+	a := p.String()
+	c := 0 // Repeat Cycle
+	for i := 1; i < 100; i++ {
+		for _, cmd := range instructions {
+			p.ProcessCommand(cmd)
+		}
+		if p.String() == a {
+			c = i
+			break
+		}
+	}
+
+	r := 1000000000 % c //remaining unique cycles
+	for i := 0; i < r; i++ {
+		for _, cmd := range instructions {
+			p.ProcessCommand(cmd)
+		}
+	}
+	result := p.String()
 	return result
+
 }
