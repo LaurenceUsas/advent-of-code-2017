@@ -15,6 +15,7 @@ func Task16() {
 	//read input.
 	pwd, _ := os.Getwd()
 	file := helpers.InputFile(pwd + "/input/input16.txt")
+	//file := []string{"s1,x3/4,pe/b", ""} // Test input
 	instructions := strings.Split(file[0], ",")
 
 	fmt.Printf("[Part 1 answer] - %v\n", task16PartOne(instructions))
@@ -22,8 +23,9 @@ func Task16() {
 }
 
 type PermutationNode struct {
-	Next  *PermutationNode
-	Value byte
+	Next     *PermutationNode
+	Previous *PermutationNode
+	Value    byte
 }
 
 type Permutator struct {
@@ -46,8 +48,8 @@ func NewPermutator(input string) *Permutator {
 
 		if previous != nil {
 			previous.Next = node
+			node.Previous = previous
 		}
-		p.HashsetValues[v] = node
 
 		if p.Head == nil {
 			p.Head = node
@@ -62,18 +64,18 @@ func NewPermutator(input string) *Permutator {
 
 // 0(n)
 func (p *Permutator) Offset(input int) {
-	a := p.Head
-	b := p.Head
-	for i := 1; i < input; i++ {
-		b = b.Next
+	for i := 0; i < input; i++ {
+		a := p.Tail
+		p.Tail = a.Previous
+		p.Tail.Next = nil
+
+		b := p.Head
+		p.Head = a
+		p.Head.Previous = nil
+
+		b.Previous = a
+		a.Next = b
 	}
-
-	p.Head = b.Next
-
-	last := p.Tail
-	last.Next = a
-	p.Tail = b
-	b.Next = nil
 }
 
 // 0(1)
@@ -107,7 +109,6 @@ func maxInt(a, b int) int {
 func (p *Permutator) SwapByValue(a, b byte) {
 	an := p.HashsetValues[a]
 	bn := p.HashsetValues[b]
-
 	swapNodeValues(an, bn, p)
 }
 
@@ -124,7 +125,7 @@ func swapNodeValues(an, bn *PermutationNode, p *Permutator) {
 	p.HashsetValues[bn.Value] = bn
 }
 
-func (p *Permutator) Value() string {
+func (p *Permutator) String() string {
 	out := ""
 	n := p.Head
 	var ba []byte
@@ -136,17 +137,11 @@ func (p *Permutator) Value() string {
 	return out
 }
 
-/*
-s1, a spin of size 1: eabcd.
-x3/4, swapping the last two programs: eabdc.
-pe/b, swapping programs e and b: baedc.
-*/
-
 func task16PartOne(instructions []string) string {
-
+	//p := NewPermutator("abcde") // Test input
 	p := NewPermutator("abcdefghijklmnop")
 	for _, command := range instructions {
-		fmt.Println(p.Value())
+		fmt.Println(p.String())
 		fmt.Println(command)
 
 		switch {
@@ -166,7 +161,7 @@ func task16PartOne(instructions []string) string {
 		}
 	}
 
-	result := p.Value()
+	result := p.String()
 	return result
 }
 

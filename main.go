@@ -1,6 +1,6 @@
 package main
 
 func main() {
-	Task18()
+	Task16()
 
 }
