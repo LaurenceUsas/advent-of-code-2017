@@ -2,29 +2,31 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/LaurenceUsas/advent-of-code-2017/helpers"
 )
 
 // Task01 Solution
 func Task01() {
-	input := helpers.InputArg("Enter the digits")
-	solution := task01PartOne(input)
-	fmt.Printf("Solution: %d \n", solution)
+	pwd, _ := os.Getwd()
+	input := helpers.InputFile(pwd + "/input/input01.txt")[0]
+
+	fmt.Printf("[Part 1 answer] - %v\n", task01PartOne(input, 1))
+	fmt.Printf("[Part 2 answer] - %v\n", task01PartOne(input, len(input)/2))
+
 }
 
-func task01PartOne(input string) int {
-	values := helpers.StringToIntArray(input)
-
+func task01PartOne(input string, offset int) int {
+	l := len(input)
 	sum := 0
-	// previous value
-	pv := values[len(values)-1:][0]
 
-	for _, v := range values {
-		if pv == v {
-			sum += v
+	for i, v := range input {
+		if byte(v) == input[(i+offset)%l] {
+			d, _ := strconv.Atoi(string(v))
+			sum += d
 		}
-		pv = v
 	}
 	return sum
 }
