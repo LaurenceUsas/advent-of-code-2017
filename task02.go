@@ -1,47 +1,60 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/LaurenceUsas/advent-of-code-2017/helpers"
 )
 
 //Task02 Solution
 func Task02() {
-	//Get absolute path path
 	pwd, _ := os.Getwd()
-	//Open file content
-	file, err := os.Open(pwd + "/input/input02.txt")
+	input := helpers.InputFile(pwd + "/input/input02.txt")
 
-	if err != nil {
-		fmt.Println("Failed opening file")
-		return
-	}
+	fmt.Printf("[Part 1 answer] - %v\n", task02PartOne(input))
+	fmt.Printf("[Part 2 answer] - %v\n", task02PartTwo(input))
+}
 
-	defer file.Close()
+func task02PartOne(input []string) int {
+	result := 0
+	for _, v := range input {
+		stringSlice := strings.Split(v, "\t")
+		ints := make([]int, len(stringSlice))
 
-	var result int
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		// Split line to []string
-		stringSlice := strings.Split(line, "\t")
-		// Covert to []int
-		output := make([]int, len(stringSlice))
 		for i := range stringSlice {
-			output[i], _ = strconv.Atoi(string(stringSlice[i]))
+			ints[i], _ = strconv.Atoi(string(stringSlice[i]))
 		}
 
-		sort.Ints(output)
-
-		diff := output[len(output)-1] - output[0]
-
+		sort.Ints(ints)
+		diff := ints[len(ints)-1] - ints[0]
 		result += diff
 	}
-	fmt.Printf("Result:\n%d", result)
+	return result
+}
 
+// Brute Force
+func task02PartTwo(input []string) int {
+	result := 0
+	for _, v := range input {
+		stringSlice := strings.Split(v, "\t")
+		ints := make([]int, len(stringSlice))
+
+		for i := range stringSlice {
+			ints[i], _ = strconv.Atoi(string(stringSlice[i]))
+		}
+		sort.Ints(ints)
+
+		for a := 0; a < len(ints)-1; a++ {
+			for aa := a + 1; aa < len(ints); aa++ {
+				if ints[aa]%ints[a] == 0 {
+					result += ints[aa] / ints[a]
+				}
+			}
+		}
+	}
+	return result
 }
