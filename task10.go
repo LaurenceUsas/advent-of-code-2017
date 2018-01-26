@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"strconv"
@@ -38,7 +39,7 @@ func (kh *KnotHash) Hash(l int) {
 		t2 := kh.Sequence[id1]
 		kh.Sequence[id0] = t2
 		kh.Sequence[id1] = t1
-		helpers.PrintTwo(id0, id1)
+
 		id0 = (id0 + 1) % size
 		id1 = (id1 + 255) % size // To avoid if when id == 0 and id--
 	}
@@ -60,7 +61,7 @@ func Task10() {
 	}
 
 	fmt.Printf("[Part 1 answer] - %v\n", task10PartOne(instructions))
-	//fmt.Printf("[Part 2 answer] - %v\n", task22PartTwo(file))
+	fmt.Printf("[Part 2 answer] - %v\n", task10PartTwo(input))
 
 }
 
@@ -70,7 +71,36 @@ func task10PartOne(input []int) int { // temp
 	for _, cmd := range input {
 		kh.Hash(cmd)
 	}
-
-	fmt.Println(kh.Sequence)
 	return kh.Sequence[0] * kh.Sequence[1]
+}
+
+func task10PartTwo(input string) string { // temp
+	// String to ASCII []int
+	var instructions []int
+	for _, char := range input {
+		instructions = append(instructions, int(char))
+	}
+	instructions = append(instructions, 17, 31, 73, 47, 23)
+
+	kh := NewKnotHash()
+	// Do 64 Rounds
+	for i := 0; i < 64; i++ {
+		for _, cmd := range instructions {
+			kh.Hash(cmd)
+		}
+	}
+
+	sh := kh.Sequence // Sparse Hash
+	dh := []byte{}    // Dense Hash
+
+	bs := 0 // bit sum
+
+	for i := 0; i < len(sh); i++ {
+		bs ^= sh[i]
+		if (i+1)%16 == 0 {
+			dh = append(dh, byte(bs))
+			bs = 0
+		}
+	}
+	return hex.EncodeToString(dh)
 }
