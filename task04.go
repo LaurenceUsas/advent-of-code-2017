@@ -69,7 +69,7 @@ func sortString(w string) string {
 	return strings.Join(s, "")
 }
 
-func task02PartTwo() {
+func task04PartTwo() {
 	input := helpers.InputFile("/input/input04.txt")
 
 	validCount := 0
