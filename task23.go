@@ -80,8 +80,8 @@ func Task23() {
 	file := helpers.InputFile(pwd + "/input/input23.txt")
 	c1 := NewCoprocessor(file, 0)
 	c1.Run()
-	fmt.Printf("[Part 1 answer] - %v\n", c1.Counter)
 
+	fmt.Printf("[Part 1 answer] - %v\n", c1.Counter)
 	fmt.Printf("[Part 2 answer] - %v\n", task23PartTwo())
 }
 
