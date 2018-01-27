@@ -10,44 +10,6 @@ import (
 	"github.com/LaurenceUsas/advent-of-code-2017/helpers"
 )
 
-type KnotHash struct {
-	Sequence        [256]int
-	CurrentPosition int
-	Skip            int
-}
-
-func NewKnotHash() *KnotHash {
-	kh := &KnotHash{}
-	var a [256]int
-	for i := 0; i < 256; i++ {
-		a[i] = i
-	}
-	kh.Sequence = a
-	kh.CurrentPosition = 0
-	kh.Skip = 0
-
-	return kh
-}
-
-func (kh *KnotHash) Hash(l int) {
-	size := 256
-	//Reversing.
-	id0 := kh.CurrentPosition   // Start ID
-	id1 := (id0 + l - 1) % size // End ID
-	for i := 0; i < l/2; i++ {
-		t1 := kh.Sequence[id0]
-		t2 := kh.Sequence[id1]
-		kh.Sequence[id0] = t2
-		kh.Sequence[id1] = t1
-
-		id0 = (id0 + 1) % size
-		id1 = (id1 + 255) % size // To avoid if when id == 0 and id--
-	}
-
-	kh.CurrentPosition = (kh.CurrentPosition + l + kh.Skip) % size
-	kh.Skip++
-}
-
 //Task10 Solution
 func Task10() {
 	pwd, _ := os.Getwd()
@@ -69,24 +31,75 @@ func task10PartOne(input []int) int { // temp
 
 	kh := NewKnotHash()
 	for _, cmd := range input {
-		kh.Hash(cmd)
+		kh.reverseSequence(cmd)
 	}
 	return kh.Sequence[0] * kh.Sequence[1]
 }
 
 func task10PartTwo(input string) string { // temp
-	// String to ASCII []int
+	kh := NewKnotHash()
+	return kh.Hash(input)
+}
+
+type KnotHash struct {
+	Sequence        [256]int
+	CurrentPosition int
+	Skip            int
+}
+
+func NewKnotHash() *KnotHash {
+	kh := &KnotHash{}
+	var a [256]int
+	for i := 0; i < 256; i++ {
+		a[i] = i
+	}
+	kh.Sequence = a
+	kh.CurrentPosition = 0
+	kh.Skip = 0
+
+	return kh
+}
+
+func (kh *KnotHash) reverseSequence(l int) {
+	size := 256
+	//Reversing.
+	id0 := kh.CurrentPosition   // Start ID
+	id1 := (id0 + l - 1) % size // End ID
+	for i := 0; i < l/2; i++ {
+		t1 := kh.Sequence[id0]
+		t2 := kh.Sequence[id1]
+		kh.Sequence[id0] = t2
+		kh.Sequence[id1] = t1
+
+		id0 = (id0 + 1) % size
+		id1 = (id1 + 255) % size // To avoid if when id == 0 and id--
+	}
+
+	kh.CurrentPosition = (kh.CurrentPosition + l + kh.Skip) % size
+	kh.Skip++
+}
+
+func (kh *KnotHash) Hash(input string) string {
+	// Clear old junk.
+	var a [256]int
+	for i := 0; i < 256; i++ {
+		a[i] = i
+	}
+	kh.Sequence = a
+	kh.CurrentPosition = 0
+	kh.Skip = 0
+
+	// Generate instructions
 	var instructions []int
 	for _, char := range input {
 		instructions = append(instructions, int(char))
 	}
 	instructions = append(instructions, 17, 31, 73, 47, 23)
 
-	kh := NewKnotHash()
 	// Do 64 Rounds
 	for i := 0; i < 64; i++ {
 		for _, cmd := range instructions {
-			kh.Hash(cmd)
+			kh.reverseSequence(cmd)
 		}
 	}
 
