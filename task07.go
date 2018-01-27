@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -19,7 +20,8 @@ type node struct {
 //Task07 Solution
 func Task07() {
 	//Read input.
-	lines := helpers.InputFile("/input/input07.txt")
+	pwd, _ := os.Getwd()
+	lines := helpers.InputFile(pwd + "/input/input07.txt")
 	nodes := map[string]*node{}
 
 	for _, line := range lines {
@@ -58,7 +60,7 @@ func Task07() {
 	for _, v := range nodes {
 		if v.parent == nil {
 			root = v
-			fmt.Printf("Part 1 answer: %s", root.name)
+			fmt.Printf("Part 1 answer: %s\n", root.name)
 		}
 	}
 
@@ -77,27 +79,41 @@ func calculateNodeWeights(nodes map[string]*node, root *node) int {
 }
 
 func findBadNode(root *node) {
-
-	cw := map[int]int{}
-
-	for _, c := range root.children {
-		cw[c.sumWeight]++
-		//Could be optimised here
-	}
-
-	for k, v := range cw {
-		if v == 1 {
-			//Found weight
-			for _, vv := range root.children {
-				if k == vv.sumWeight {
-					findBadNode(vv)
+	l := len(root.children)
+	switch {
+	case l == 0:
+		return
+	case l > 2:
+		// Comparer
+		var a, b *node
+		ag := false // A good
+		for _, c := range root.children {
+			if a == nil {
+				a = c
+			} else if b != nil && c.sumWeight == a.sumWeight {
+				// B Bad
+				findBadNode(b)
+				return
+			} else if b != nil && c.sumWeight == b.sumWeight {
+				// A Bad
+				findBadNode(a)
+				return
+			} else if c.sumWeight != a.sumWeight {
+				// New B
+				if ag {
+					findBadNode(c)
 					return
 				}
+				b = c
+
+			} else if c.sumWeight == a.sumWeight {
+				ag = true
 			}
 		}
-	}
+		diff := root.sumWeight - (root.parent.sumWeight-root.parent.weight-root.sumWeight)/(len(root.parent.children)-1)
+		sw := root.weight - diff
 
-	for _, v := range root.parent.children {
-		fmt.Println(v.sumWeight)
+		fmt.Printf("Part 1 answer: %v\n", sw)
+		return
 	}
 }
